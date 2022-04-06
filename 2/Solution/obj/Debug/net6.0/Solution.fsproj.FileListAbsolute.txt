@@ -1,0 +1,3 @@
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/2/Solution/obj/Debug/net6.0/Solution.AssemblyInfoInputs.cache
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/2/Solution/obj/Debug/net6.0/Solution.AssemblyInfo.fs
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/2/Solution/obj/Debug/net6.0/Solution.fsproj.CoreCompileInputs.cache

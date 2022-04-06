@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "iwbuAjo514FQzHpCMKtvY1Kq9tb9V9q2FiDoeX1j4puCDFVdrqw+cZGXyRVwgvj4XECLfdtjEDavFcR5csYh6w==",
+  "success": true,
+  "projectFilePath": "/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/4/MultiSet/MultiSet.fsproj",
+  "expectedPackageFiles": [
+    "/Users/andreas/.nuget/packages/fsharp.core/6.0.1/fsharp.core.6.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

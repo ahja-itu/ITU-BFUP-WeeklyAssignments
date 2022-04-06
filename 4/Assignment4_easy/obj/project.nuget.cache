@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "kALRDmWVxiNOZjsXgsnd5/qh3Ce7sNgiOPthcm+7irF2C5GBbjtdnFdeUZqQ3wCSckvnMeClysXTLae6AedCDg==",
+  "success": true,
+  "projectFilePath": "/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/4/Assignment4_easy/Assignment4.fsproj",
+  "expectedPackageFiles": [
+    "/Users/andreas/.nuget/packages/fsharp.core/6.0.1/fsharp.core.6.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

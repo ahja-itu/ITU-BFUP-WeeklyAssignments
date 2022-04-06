@@ -1,0 +1,4 @@
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/4/MultiSet/obj/Debug/net6.0/MultiSet.fsproj.AssemblyReference.cache
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/4/MultiSet/obj/Debug/net6.0/MultiSet.AssemblyInfoInputs.cache
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/4/MultiSet/obj/Debug/net6.0/MultiSet.AssemblyInfo.fs
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/4/MultiSet/obj/Debug/net6.0/MultiSet.fsproj.CoreCompileInputs.cache

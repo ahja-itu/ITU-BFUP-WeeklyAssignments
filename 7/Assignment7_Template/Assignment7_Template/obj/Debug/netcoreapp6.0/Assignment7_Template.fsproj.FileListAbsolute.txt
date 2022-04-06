@@ -1,0 +1,3 @@
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/obj/Debug/netcoreapp6.0/Assignment7_Template.AssemblyInfoInputs.cache
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/obj/Debug/netcoreapp6.0/Assignment7_Template.AssemblyInfo.fs
+/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/obj/Debug/netcoreapp6.0/Assignment7_Template.fsproj.CoreCompileInputs.cache
