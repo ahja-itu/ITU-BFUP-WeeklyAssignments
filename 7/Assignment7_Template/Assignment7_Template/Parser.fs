@@ -1,7 +1,10 @@
 ﻿module ImpParser
 
+    // open ScrabbleUtil // NEW. KEEP THIS LINE.
+    open System.Collections
+    open System.Threading.Tasks
     open Eval
-
+    open StateMonad
     (*
 
     The interfaces for JParsec and FParsecLight are identical and the implementations should always produce the same output
@@ -42,8 +45,8 @@
     let pletter        = satisfy System.Char.IsLetter <?> "letter"
     let palphanumeric  = satisfy System.Char.IsLetterOrDigit <?> "alphanumeric"
 
-    let spaces         = many whitespaceChar <?> "spaces"
-    let spaces1        = many1 whitespaceChar <?> "spaces1"
+    let spaces         = many whitespaceChar <?> "space"
+    let spaces1        = many1 whitespaceChar <?> "space1"
 
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Exercise 7.3
@@ -60,7 +63,7 @@
     let parseAnyBrackets p bracketOpen bracketClose
         = pchar bracketOpen >*>. p .>*> pchar bracketClose
     let parenthesise p = parseAnyBrackets p '(' ')'
-    let curlybrackets p = parseAnyBrackets p '{' '}'
+    let curlybracketise p = parseAnyBrackets p '{' '}'
     
     // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     // Exercise 7.5
@@ -97,6 +100,10 @@
     let BoolParse1, bp1ref = createParserForwardedToRef<bExp>()
     let BoolParse2, bp2ref = createParserForwardedToRef<bExp>()
     let BoolParse3, bp3ref = createParserForwardedToRef<bExp>()
+    
+    // For exercise 7.11
+    let StmntParsePrimary, spref = createParserForwardedToRef<stm>()
+    let StmntParseSecondary, ssref = createParserForwardedToRef<stm>()
 
     // Given from the template
     let MulParse = binop (pchar '*') AtomParse ProdParse |>> Mul <?> "Mul"
@@ -155,21 +162,21 @@
     // Atom Parsing
     do aref.Value <-
         choice [
-            ParParse
             NegParse
             PVParse
             CharToIntParse
             VParse
             NParse
+            ParParse
         ]
 
     do cref.Value <- 
         choice [
-            IntToCharParse
             CharValueParse
-            CharParse
+            IntToCharParse
             ToUpperParse
             ToLowerParse
+            CharParse
         ]
 
     let CexpParse = charParse
@@ -184,23 +191,23 @@
 
     // Loosest bindings
     let ConjunctionParse = binop (pstring "/\\") (BoolParse2) (BoolParse1) |>> Conj <?> "Conj"
-    let DisjunctionParse = binop (pstring "\\/") (BoolParse2) (BoolParse1) |>> (fun (l, r) -> Conj ((Not l), (Not r))) <?> "Disj"
-    
+    let DisjunctionParse = binop (pstring "\\/") (BoolParse2) (BoolParse1) |>> (fun (l, r) -> Not (Conj ((Not l), (Not r)))) <?> "Disj"
+    let ParenthesiseBoolParse = parenthesise BoolParse1 <?> "( B )"
+    let call f (a, b) = f a b
+
     // Middle-strength bindings
-    let EqualParse          = binop (pchar '=')    AexpParse AexpParse |>> AEq <?> "="
-    let DifferentParse      = binop (pstring "<>") AexpParse AexpParse |>> (fun (l, r) -> l .<>. r) <?> "<>"
-    let LessThanParse       = binop (pchar '<')    AexpParse AexpParse |>> ALt <?> "<"
-    let LessThanEqualsParse = binop (pstring "<=") AexpParse AexpParse |>> (fun (l, r) -> l .<=. r) <?> "<="
-    let GreaterThan         = binop (pchar '>')    AexpParse AexpParse |>> (fun (l, r) -> l .>. r) <?> ">"
-    let GreaterEqualsThan   = binop (pstring ">=") AexpParse AexpParse |>> (fun (l, r) -> l .>=. r) <?> ">="
+    let EqualParse          = binop (pchar '=')    AexpParse AexpParse |>> AEq         <?> "="
+    let DifferentParse      = binop (pstring "<>") AexpParse AexpParse |>> call (.<>.) <?> "<>"
+    let LessThanParse       = binop (pchar '<')    AexpParse AexpParse |>> ALt         <?> "<"
+    let LessThanEqualsParse = binop (pstring "<=") AexpParse AexpParse |>> call (.<=.) <?> "<="// (fun (l, r) -> l .<=. r) <?> "<="
+    let GreaterThan         = binop (pchar '>')    AexpParse AexpParse |>> call (.>.)  <?> ">"
+    let GreaterEqualsThan   = binop (pstring ">=") AexpParse AexpParse |>> call (.>=.) <?> ">="
 
     // Strongest bindings
     let NotParse      = unop (pchar '~') BoolParse1           |>> Not      <?> "Not"
     let IsLetterParse = pIsLetter >*>. parenthesise charParse |>> IsLetter <?> "IsLetter"
     let IsDigitParse  = pIsDigit  >*>. parenthesise charParse |>> IsDigit  <?> "IsDigit"
     let IsVowelParse  = pIsVowel  >*>. parenthesise charParse |>> IsVowel  <?> "IsVowel"
-
-    // TODO: Nuværende implementation kan ikke håndtere parenteser der grupperer statements sammen
 
     do bp1ref.Value <-
         choice [
@@ -223,21 +230,71 @@
     do bp3ref.Value <-
         choice [
             NotParse
-            IsLetterParse
             IsDigitParse
+            IsLetterParse
             IsVowelParse
-            FalseParse
             TrueParse
+            FalseParse
+            ParenthesiseBoolParse
         ]
 
     let BexpParse = BoolParse1
+    
+    // TODO: Nuværende implementation kan ikke håndtere parenteser der grupperer statements sammen
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Exercise 7.11
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+    let LetParse : Parser<stm> =
+        pid .>*> pstring ":=" .>*>. AexpParse |>> Ass <?> "Let"
 
+    let DeclareParse : Parser<stm> =
+        pdeclare >>. spaces1 >>. pid |>> Declare <?> "Declare"
+        
+    let SemiColonParse : Parser<stm> =
+        StmntParseSecondary .>*> pchar ';' .>*>. StmntParsePrimary |>> Seq <?> "Seq"
+    
+    let IfThenElseParse : Parser<stm> =
+        pif
+         >*>. parenthesise BexpParse
+        .>*> pthen
+        .>*>. curlybracketise StmntParseSecondary
+        .>*> pelse
+        .>*>. curlybracketise StmntParseSecondary
+        |>> (fun ((boolExp, trueStm), falseStm) -> ITE (boolExp, trueStm, falseStm)) <?> "IfElse"
+    
+    let IfThenParse : Parser<stm> =
+        pif
+         >*>. parenthesise BexpParse
+        .>*> pthen
+        .>*>. curlybracketise StmntParseSecondary
+        |>> (fun (boolExp, trueStm) -> ITE (boolExp, trueStm, Skip)) <?> "IfThen"
+        
+    let WhileParse : Parser<stm> =
+        pwhile
+         >*>. parenthesise BexpParse    
+        .>*> pdo
+        .>*>. curlybracketise StmntParseSecondary
+        |>> While <?> "While"
 
-    // TODO: Make rest of Assignment 7 yellow and reds
-    let stmntParse = pstring "not implemented"
+    do spref.Value <- choice
+        [
+            SemiColonParse
+            StmntParseSecondary
+        ]
 
-(* These five types will move out of this file once you start working on the project *)
+    do ssref.Value <- choice
+        [
+            LetParse
+            DeclareParse
+            IfThenElseParse
+            IfThenParse
+            WhileParse
+        ]
+
+    let stmntParse = StmntParsePrimary
+    
     type coord      = int * int
     type squareProg = Map<int, string>
     type boardProg  = {
@@ -249,20 +306,97 @@
             isInfinite : bool   // For pretty-printing purposes only
             ppSquare   : string // For pretty-printing purposes only
         }
-
+    
     type word   = (char * int) list
     type square = Map<int, squareFun>
-
-    let parseSquareProg _ = failwith "not implemented"
-
-    let parseBoardProg _ = failwith "not implemented"
-
-    type boardFun2 = coord -> StateMonad.Result<square option, StateMonad.Error>
+    type boardFun2 = coord -> Result<square option, Error>
     type board = {
         center        : coord
         defaultSquare : square
         squares       : boardFun2
     }
 
-    let mkBoard (bp : boardProg) = failwith "not implemented"
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // From exercise 6.12
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    let stmntToSquareFun (stmnt: stm) : squareFun =
+        fun (word: word) (pos: int) (acc: int) ->
+            let state = mkState [("_pos_", pos); ("_acc_", acc); ("_result_", 0)] word ["_pos_"; "_acc_"; "_result_"]
+            stmntEval2 stmnt >>>= lookup "_result_" |> evalSM state
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // From exercise 6.13
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    let returnIfFound (m: Map<int, 'a>) (i: int) : SM<'a option> =
+        match m.TryFind i with
+        | Some x -> ret <| Some x
+        | _ -> ret None
+    
+    let stmntToBoardFun (stmnt: stm) (m: Map<int, 'a>) : coord -> Result<'a option, Error> =
+       fun ((x, y): coord) ->
+           let _a = 0
+           let state = mkState [("_result_", 0); ("_x_", x); ("_y_", y)] [] ["_x_"; "_y_"; "_result_"]
+           
+           stmntEval2 stmnt >>>=
+           lookup "_result_" >>=
+           (returnIfFound m)
+           |> evalSM state
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Exercise 7.12
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    
+    
+    let sourceToSquareFun source = 
+        (run stmntParse >> getSuccess >> stmntToSquareFun) source
+    
+    let sourceToSquareFun' _ = sourceToSquareFun
+    
+    let parseSquareProg (sqp : squareProg) : square =
+        
+        // Non-parallel version:
+        // Map.map sourceToSquareFun' sqp
+        
+        // Parallel version
+        Map.toArray sqp
+        |> Array.Parallel.map(fun (k, v) ->
+            (k, sourceToSquareFun v))
+        |> Map.ofArray
+        
+
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Exercise 7.13
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    
+    // Alias: parseBoardFun
+    // type boardFun2 = coord -> Result<square option, Error>                       
+    let parseBoardProg (source: string) (squares: Map<int, square>) : boardFun2 =
+        run stmntParse source
+        |> getSuccess
+        |> fun stmnt -> stmntToBoardFun stmnt squares
+    
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    // Exercise 7.14
+    // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    let mkBoard (bp : boardProg) : board =
+        // Non-parallel version
+        //let m' = Map.map (fun _ sq -> parseSquareProg sq) bp.squares
+        
+        // Parallel version
+        let m'' = Map.toArray bp.squares
+                    |> Array.Parallel.map (fun (k, v) ->
+                        (k, parseSquareProg v))
+                    |> Map.ofArray
+        
+        {
+            squares = parseBoardProg bp.prog m''
+            center = bp.center
+            defaultSquare = m''.[bp.usedSquare]
+        }
+
+
+
+
 

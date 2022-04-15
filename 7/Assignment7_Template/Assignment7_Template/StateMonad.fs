@@ -52,16 +52,19 @@
     let wordLength : SM<int> =
         S (fun s -> Success (List.length s.word, s))
 
-    let getCharValue (pos : int) (f: 'a * 'b -> 'c) (s: State): Result<'d, Error>
-        = match List.tryItem pos s.word with
-            | Some pair -> Success (f pair, s)
-            | None -> Failure (IndexOutOfBounds pos)
-    
+    type PairChoice = Fst | Snd
+        
     let characterValue (pos : int) : SM<char> =
-        S (getCharValue pos fst)
+        S (fun s ->
+            match List.tryItem pos s.word with
+            | Some (a, _) -> Success (a, s)
+            | None -> Failure (IndexOutOfBounds pos))
 
     let pointValue (pos : int) : SM<int> =
-        S (getCharValue pos snd)
+        S (fun s ->
+            match List.tryItem pos s.word with
+            | Some (_, b) -> Success (b, s)
+            | None -> Failure (IndexOutOfBounds pos))
 
     let lookup (x : string) : SM<int> = 
         let rec aux =

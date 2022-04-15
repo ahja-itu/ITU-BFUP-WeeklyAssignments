@@ -156,11 +156,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/Assignment7_Template.fsproj",
+      "projectUniqueName": "/Users/andreas/Library/Mobile Documents/com~apple~CloudDocs/Dokumenter/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/Assignment7_Template.fsproj",
       "projectName": "Assignment7_Template",
-      "projectPath": "/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/Assignment7_Template.fsproj",
+      "projectPath": "/Users/andreas/Library/Mobile Documents/com~apple~CloudDocs/Dokumenter/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/Assignment7_Template.fsproj",
       "packagesPath": "/Users/andreas/.nuget/packages/",
-      "outputPath": "/Users/andreas/Nextcloud/Documents/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/obj/",
+      "outputPath": "/Users/andreas/Library/Mobile Documents/com~apple~CloudDocs/Dokumenter/Education/ITU/4. Semester/Functional Programming/Assignments/7/Assignment7_Template/Assignment7_Template/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/andreas/.nuget/NuGet/NuGet.Config"
